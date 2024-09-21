@@ -23,26 +23,34 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-const allowedOrigins = ["https://example.com", "https://yourdomain.com"];
-
 app.use(
 	cors({
-		origin: function (origin, callback) {
-			// Allow requests with no origin, like mobile apps or curl requests
-			if (!origin) return callback(null, true);
-
-			// Check if the origin is in the allowedOrigins array
-			if (allowedOrigins.indexOf(origin) === -1) {
-				return callback(new Error("Not allowed by CORS"));
-			}
-			return callback(null, true);
-		},
-		credentials: true, // Allow credentials (cookies, tokens, etc.)
+		origin: "https://tri-code-compiler.vercel.app", // This is where Access-Control-Allow-Origin is set globally
+		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // This is Access-Control-Allow-Methods
+		credentials: true, // This sets Access-Control-Allow-Credentials
+		allowedHeaders: [
+			"Origin",
+			"X-Requested-With",
+			"Content-Type",
+			"Accept",
+			"Authorization",
+		], // This is Access-Control-Allow-Headers
 	})
 );
 
-// Handle preflight requests
-app.options("*", cors()); // Allow preflight for all routes
+app.use((req, res, next) => {
+	res.header(
+		"Access-Control-Allow-Origin",
+		"https://tri-code-compiler.vercel.app"
+	);
+	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+	res.header(
+		"Access-Control-Allow-Headers",
+		"Origin, X-Requested-With, Content-Type, Accept, Authorization"
+	);
+	res.header("Access-Control-Allow-Credentials", "true");
+	next();
+});
 
 // Routes
 app.use("/", indexRouter);
