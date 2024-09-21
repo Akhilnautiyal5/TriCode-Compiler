@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import darklogo from "../images/darklogo.svg";
 import rightimg from "../images/authPageSide.png";
 import { Link, useNavigate } from "react-router-dom";
+import { FaEye } from "react-icons/fa6";
+import { FaEyeSlash } from "react-icons/fa6";
 import { api_base_url } from "../helper";
 
 const Login = () => {
@@ -61,7 +63,7 @@ const Login = () => {
 							placeholder="Email"
 						/>
 						</div>
-						<div className="mb-3 w-full md:w-96">
+						<div className="relative mb-3 w-full md:w-96">
 							<input
 								onChange={(e) => setPassword(e.target.value)}
 								value={password}
@@ -73,16 +75,12 @@ const Login = () => {
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)} // Toggle password visibility
-								className="flex items-center px-3 text-gray-500"
+								className="flex absolute top-4 right-3 items-center px-3 text-gray-500"
 							>
 								{showPassword ? (
-									<span role="img" aria-label="hide">
-										🙈
-									</span>
+									<FaEye size={18}/>
 								) : (
-									<span role="img" aria-label="show">
-										👁️
-									</span>
+									<FaEyeSlash size={18}/>
 								)}
 							</button>
 						</div>
