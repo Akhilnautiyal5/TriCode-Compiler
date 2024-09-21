@@ -84,7 +84,7 @@ Ensure you have the following installed:
 
    - Start the frontend (React.js app):
      ```bash
-     cd ../client
+     cd ../frontend
      npm start
      ```
 
