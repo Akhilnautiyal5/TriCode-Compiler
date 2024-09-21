@@ -23,34 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(
-	cors({
-		origin: "https://tri-code-compiler.vercel.app", // This is where Access-Control-Allow-Origin is set globally
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // This is Access-Control-Allow-Methods
-		credentials: true, // This sets Access-Control-Allow-Credentials
-		allowedHeaders: [
-			"Origin",
-			"X-Requested-With",
-			"Content-Type",
-			"Accept",
-			"Authorization",
-		], // This is Access-Control-Allow-Headers
-	})
-);
-
-app.use((req, res, next) => {
-	res.header(
-		"Access-Control-Allow-Origin",
-		"https://tri-code-compiler.vercel.app"
-	);
-	res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-	res.header(
-		"Access-Control-Allow-Headers",
-		"Origin, X-Requested-With, Content-Type, Accept, Authorization"
-	);
-	res.header("Access-Control-Allow-Credentials", "true");
-	next();
-});
+app.use(cors())
 
 // Routes
 app.use("/", indexRouter);
