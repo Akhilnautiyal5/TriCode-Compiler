@@ -23,20 +23,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Define allowed origins
-const allowedOrigins = ["https://tri-code-compiler.vercel.app/"];
+const allowedOrigins = ["https://example.com", "https://yourdomain.com"];
 
-// Configure CORS to allow only requests from the specified origin
 app.use(
 	cors({
-		origin: allowedOrigins,
-		credentials: true, // If you are using cookies
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Add allowed methods
+		origin: function (origin, callback) {
+			// Allow requests with no origin, like mobile apps or curl requests
+			if (!origin) return callback(null, true);
+
+			// Check if the origin is in the allowedOrigins array
+			if (allowedOrigins.indexOf(origin) === -1) {
+				return callback(new Error("Not allowed by CORS"));
+			}
+			return callback(null, true);
+		},
+		credentials: true, // Allow credentials (cookies, tokens, etc.)
 	})
 );
 
 // Handle preflight requests
-app.options("*", cors());
+app.options("*", cors()); // Allow preflight for all routes
 
 // Routes
 app.use("/", indexRouter);
