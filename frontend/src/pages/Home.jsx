@@ -35,8 +35,6 @@ const Home = () => {
 				method: "POST",
 				headers: {
 					'Content-Type':'application/json',
-                    'Access-Control-Allow-Origin':'*',
-                    'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'
 				},
 				body: JSON.stringify({
 					title: projectTitle,
@@ -62,8 +60,6 @@ const Home = () => {
 			method: "POST",
 			headers: {
 				'Content-Type':'application/json',
-                    'Access-Control-Allow-Origin':'*',
-                    'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'
 			},
 			body: JSON.stringify({
 				userId: localStorage.getItem("userId"),

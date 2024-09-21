@@ -9,11 +9,11 @@ import Login from "./pages/Login";
 import Editor from "./pages/Editor";
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(
+	const [isLoggedIn, setIsLoggedIn] = useState(
 		localStorage.getItem("isLoggedIn") === "true" // Ensuring it's a boolean
 	);
 
-  useEffect(() => {
+	useEffect(() => {
 		const checkLoginStatus = () => {
 			// Again, make sure to convert the value to a boolean
 			const loggedInStatus = localStorage.getItem("isLoggedIn") === "true";
@@ -35,7 +35,7 @@ const App = () => {
 					<Route
 						path="/"
 						// element={<Home/>}
-					element = {isLoggedIn ? <Home /> : <Navigate to="/login" />}
+						element={isLoggedIn ? <Home /> : <Navigate to="/login" />}
 					/>
 					<Route path="/signup" element={<Signup />} />
 					<Route path="/login" element={<Login />} />

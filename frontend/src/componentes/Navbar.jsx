@@ -19,8 +19,6 @@ const Navbar = ({ toggletheme, isLightMode }) => {
 				method: "POST",
 				headers: {
 					'Content-Type':'application/json',
-                    'Access-Control-Allow-Origin':'*',
-                    'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS',
 					Authorization: "Bearer " + localStorage.getItem("token"),
 				},
 				body: JSON.stringify({
@@ -108,7 +106,7 @@ const Navbar = ({ toggletheme, isLightMode }) => {
 						style={{ fontStyle: "normal" }}
 					>
 						<BiLogOut className="text-[20px]" />
-						<p>Logout</p>
+						Logout
 					</p>
 				</div>
 			</div>

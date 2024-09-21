@@ -49,9 +49,7 @@ const Editor = () => {
 			mode: "cors",
 			method: "POST",
 			headers: {
-				'Content-Type':'application/json',
-                    'Access-Control-Allow-Origin':'*',
-                    'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'
+				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
 				userId: localStorage.getItem("userId"),
@@ -96,9 +94,7 @@ const Editor = () => {
 				mode: "cors",
 				method: "POST",
 				headers: {
-					'Content-Type':'application/json',
-                    'Access-Control-Allow-Origin':'*',
-                    'Access-Control-Allow-Methods':'POST,PATCH,OPTIONS'
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify({
 					userId: localStorage.getItem("userId"),
