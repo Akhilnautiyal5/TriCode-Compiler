@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Define allowed origins
-const allowedOrigins = ["https://tri-code-compiler.vercel.app"];
+const allowedOrigins = ["https://tri-code-compiler.vercel.app/"];
 
 // Configure CORS to allow only requests from the specified origin
 app.use(
