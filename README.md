@@ -1,4 +1,4 @@
-[FullStackRes.pdf](https://github.com/user-attachments/files/17089255/FullStackRes.pdf)# TriCode Compiler
+# TriCode Compiler
 
 TriCode Compiler is a full-stack web-based platform that allows users to write, compile, and execute HTML, CSS, and JavaScript code in real time. Users can securely store, manage, and download their projects, with support for real-time previews and immediate feedback. The project is built on the MERN (MongoDB, Express.js, React.js, Node.js) stack and utilizes modern web technologies such as Tailwind CSS for responsive design, JWT for secure authentication, and REST API for backend communication.
 
@@ -104,6 +104,10 @@ Ensure you have the following installed:
 3. **Project Management:**
    - Users can save their projects to the database, edit them later, and even download their entire project as a ZIP file for offline use.
 
+### Demo
+
+A live demo of the application is available at: [your-demo-link]
+
 ## Future Enhancements
 
 - **Collaboration Features:**  
@@ -123,17 +127,6 @@ Contributions are welcome! Please submit a pull request or open an issue to disc
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
-
-## Contact
-
-For any questions or suggestions, feel free to contact me at [akhilnautiyal5@gmail.com].
-
----
-
-### Demo
-
-A live demo of the application is available at: [your-demo-link]
 
 https://github.com/user-attachments/assets/d665f97d-2dd1-4775-80ce-2608804b91dd
 
