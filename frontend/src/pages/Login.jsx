@@ -35,7 +35,9 @@ const Login = () => {
 				setError(message || "Login failed. Please try again.");
 			}
 		} catch (err) {
-			if (err.code === 'ERR_NETWORK') {
+			if (err.response && err.response.status === 404) {
+				setError("The login endpoint was not found. Please check the API URL and try again.");
+			} else if (err.code === 'ERR_NETWORK') {
 				setError("Unable to connect to the server. Please check your internet connection and try again.");
 			} else {
 				setError("An error occurred while logging in. Please try again later.");
