@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import EditorNavBar from "../componentes/EditorNavBar";
 import { RiExpandDiagonalLine } from "react-icons/ri";
-import { FaPlay } from "react-icons/fa6";
 import MonacoEditor from "@monaco-editor/react";
 import { useParams } from "react-router-dom";
 import { api_base_url } from "../helper";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
-const DefaultHtmlcode = `<!DOCTYPE html>
+const DefaultHtmlCode = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -28,175 +28,158 @@ const DefaultCssCode = `* {
 
 body {
 	width: 100%;
-	height: 100%;
+	height: 100vh;
 }`;
 
-const DefaultJSCode = `console.log("hello world")`;
+const DefaultJsCode = `console.log("Hello world");`;
 
 const Editor = () => {
 	const [activeTab, setActiveTab] = useState("html");
-	const [isLightMode, setisLightMode] = useState(false);
-	const [isExpanded, setExpand] = useState(false);
-	const [htmlcode, setHtmlCode] = useState(DefaultHtmlcode);
-	const [csscode, setCssCode] = useState(DefaultCssCode);
-	const [jscode, setJsCode] = useState(DefaultJSCode);
+	const [isLightMode, setIsLightMode] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(false);
+	const [htmlCode, setHtmlCode] = useState(DefaultHtmlCode);
+	const [cssCode, setCssCode] = useState(DefaultCssCode);
+	const [jsCode, setJsCode] = useState(DefaultJsCode);
 
-	let { projectId } = useParams();
+	const { projectId } = useParams();
 
 	useEffect(() => {
-		// getProjectCode();
-		fetch(api_base_url + "/getProjectCode", {
-			mode: "cors",
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				userId: localStorage.getItem("userId"),
+		const fetchProjectCode = async () => {
+			try {
+				const response = await axios.post(`${api_base_url}/getProjectCode`, {
+					userId: localStorage.getItem("userId"),
+					projectId: projectId,
+				});
+				const { htmlCode, cssCode, jsCode } = response.data.project;
+				setHtmlCode(htmlCode);
+				setCssCode(cssCode);
+				setJsCode(jsCode);
+			} catch (error) {
+				console.error("Error fetching project code:", error);
+			}
+		};
 
-				projectId: projectId,
-			}),
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				setHtmlCode(data.project.htmlCode);
-				setCssCode(data.project.cssCode);
-				setJsCode(data.project.jsCode);
-			});
+		fetchProjectCode();
 	}, [projectId]);
 
-	const toggletheme = () => {
-		setisLightMode((prev) => !prev);
+	const toggleTheme = () => {
+		setIsLightMode((prev) => !prev);
 	};
 
-	// Effect to toggle the class on the body element
 	useEffect(() => {
-		if (isLightMode) {
-			document.body.classList.add("light-mode");
-		} else {
-			document.body.classList.remove("light-mode");
-		}
+		document.body.classList.toggle("light-mode", isLightMode);
 	}, [isLightMode]);
 
 	const render = () => {
-		const html = htmlcode;
-		const css = `<style>${csscode}</style>`;
-		const js = `<script>${jscode}</script>`;
 		const iframe = document.querySelector("#iframe");
 		if (iframe) {
-			iframe.srcdoc = `${html}${css}${js}`;
+			const content = `
+				${htmlCode}
+				<style>${cssCode}</style>
+				<script>${jsCode}</script>
+			`;
+			iframe.srcdoc = content;
 		}
 	};
 
 	const save = async () => {
 		try {
-			const response = await fetch(api_base_url + "/updateProject", {
-				mode: "cors",
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					userId: localStorage.getItem("userId"),
-					projectId: projectId,
-					htmlCode: htmlcode,
-					cssCode: csscode,
-					jsCode: jscode,
-				}),
+			const response = await axios.post(`${api_base_url}/updateProject`, {
+				userId: localStorage.getItem("userId"),
+				projectId: projectId,
+				htmlCode,
+				cssCode,
+				jsCode,
 			});
-			const data = await response.json();
-			if (data.success) {
+			if (response.data.success) {
 				return true;
 			} else {
-				alert(data.message);
+				console.error("Failed to save project:", response.data.message);
+				return false;
 			}
 		} catch (error) {
-			throw new Error(error.message);
+			console.error("Error saving project:", error);
+			return false;
 		}
 	};
 
 	useEffect(() => {
-		setTimeout(() => {
+		const debounce = setTimeout(() => {
 			render();
-		}, 200);
-	}, [htmlcode, csscode, jscode]);
+		}, 500);
+
+		return () => clearTimeout(debounce);
+	}, [htmlCode, cssCode, jsCode]);
 
 	const downloadFiles = async () => {
 		const zip = new JSZip();
 
-		zip.file("index.html", htmlcode);
-		zip.file("css.css", csscode);
-		zip.file("script.js", jscode);
+		zip.file("index.html", htmlCode);
+		zip.file("styles.css", cssCode);
+		zip.file("script.js", jsCode);
 
-		zip.generateAsync({ type: "blob" }).then((content) => {
-			saveAs(content, "project.zip");
-		});
+		const content = await zip.generateAsync({ type: "blob" });
+		saveAs(content, "project.zip");
+	};
+
+	const handleCodeChange = (value, language) => {
+		switch (language) {
+			case "html":
+				setHtmlCode(value);
+				break;
+			case "css":
+				setCssCode(value);
+				break;
+			case "javascript":
+				setJsCode(value);
+				break;
+			default:
+				console.error("Unknown language:", language);
+		}
+		save();
 	};
 
 	return (
 		<div>
 			<EditorNavBar
-				toggletheme={toggletheme}
+				toggleTheme={toggleTheme}
 				isLightMode={isLightMode}
 				render={render}
 				save={save}
 				downloadFiles={downloadFiles}
 			/>
 			<div className="flex">
-				<div className={`left ${isExpanded ? "w-[100%]" : "w-[50%]"}`}>
+				<div className={`left ${isExpanded ? "w-full" : "w-1/2"}`}>
 					<div
-						className={`flex items-center justify-between  w-full  h-14 ${
-							isLightMode
-								? `bg-[#e6e6e6] text-black`
-								: `bg-[#1a1919] text-white`
+						className={`flex items-center justify-between w-full h-14 ${
+							isLightMode ? "bg-[#e6e6e6] text-black" : "bg-[#1a1919] text-white"
 						}`}
 					>
 						<div className="flex justify-start gap-3 w-full h-full">
-							<div
-								className={`tab ${
-									activeTab === "html"
-										? `border-b-2 ${
-												isLightMode ? `border-b-blue-800` : `border-b-white`
-										  }`
-										: ""
-								} pt-[16px] px-[15px] w-36 ${
-									isLightMode ? "active:bg-zinc-100" : "active;bg-zinc-600"
-								} text-center cursor-pointer text-[14px] tracking-wider`}
-								onClick={() => setActiveTab("html")}
-							>
-								index.html
-							</div>
-							<div
-								className={`tab ${
-									activeTab === "css"
-										? `border-b-2 ${
-												isLightMode ? `border-b-blue-800` : `border-b-white`
-										  }`
-										: ""
-								} px-[15px] pt-[16px] w-36 ${
-									isLightMode ? "active:bg-zinc-100" : "active;bg-zinc-600"
-								} text-center cursor-pointer text-[14px] tracking-wider`}
-								onClick={() => setActiveTab("css")}
-							>
-								style.css
-							</div>
-							<div
-								className={`tab ${
-									activeTab === "javascript"
-										? `border-b-2 ${
-												isLightMode ? `border-b-blue-800` : `border-b-white`
-										  }`
-										: ""
-								} px-[15px] pt-[16px] w-36 ${
-									isLightMode ? "active:bg-zinc-100" : "active;bg-zinc-600"
-								} text-center cursor-pointer text-[14px] tracking-wider`}
-								onClick={() => setActiveTab("javascript")}
-							>
-								script.js
-							</div>
+							{["html", "css", "javascript"].map((tab) => (
+								<div
+									key={tab}
+									className={`tab ${
+										activeTab === tab
+											? `border-b-2 ${
+													isLightMode ? "border-b-blue-800" : "border-b-white"
+											  }`
+											: ""
+									} pt-4 px-4 w-36 ${
+										isLightMode ? "active:bg-zinc-100" : "active:bg-zinc-600"
+									} text-center cursor-pointer text-sm tracking-wider`}
+									onClick={() => setActiveTab(tab)}
+								>
+									{tab === "html"
+										? "index.html"
+										: tab === "css"
+										? "styles.css"
+										: "script.js"}
+								</div>
+							))}
 						</div>
 						<RiExpandDiagonalLine
-							onClick={() => setExpand((prev) => !prev)}
+							onClick={() => setIsExpanded((prev) => !prev)}
 							className={`size-9 cursor-pointer rounded-full p-2 mr-8 ${
 								isLightMode ? "active:bg-zinc-100" : "active:bg-zinc-600"
 							}`}
@@ -207,38 +190,26 @@ const Editor = () => {
 						key={activeTab}
 						options={{
 							fontSize: 16,
+							minimap: { enabled: false },
 						}}
-						height="80vh"
-						theme={`${isLightMode ? `vs-light` : `vs-dark`}`}
+						height="calc(100vh - 112px)"
+						theme={isLightMode ? "vs-light" : "vs-dark"}
 						language={activeTab}
 						value={
 							activeTab === "html"
-								? htmlcode
+								? htmlCode
 								: activeTab === "css"
-								? csscode
-								: jscode
+								? cssCode
+								: jsCode
 						}
-						onChange={(value) => {
-							if (activeTab === "html") {
-								setHtmlCode(value);
-								render();
-								save();
-							} else if (activeTab === "css") {
-								setCssCode(value);
-								render();
-								save();
-							} else {
-								setJsCode(value);
-								render();
-								save();
-							}
-						}}
+						onChange={(value) => handleCodeChange(value, activeTab)}
 					/>
 				</div>
 				<iframe
 					id="iframe"
-					className={`utput ml-1 bg-white text-black min-h-fit ${
-						isExpanded ? "w-[0%]" : "w-[50%]"
+					title="Output"
+					className={`output ml-1 bg-white text-black min-h-fit ${
+						isExpanded ? "w-0" : "w-1/2"
 					}`}
 				>
 					iframe

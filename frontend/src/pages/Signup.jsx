@@ -1,104 +1,94 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import darklogo from "../images/darklogo.svg";
 import rightimg from "../images/authPageSide.png";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { api_base_url } from "../helper";
-import { FaEyeSlash } from "react-icons/fa";
-import { FaEye } from "react-icons/fa";
+import { FaEyeSlash, FaEye } from "react-icons/fa";
+
 const Signup = () => {
-	const [username, setUsername] = useState("");
-	const [name, setName] = useState("");
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
+	const [formData, setFormData] = useState({
+		username: "",
+		name: "",
+		email: "",
+		password: "",
+	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState("");
 
-	const navigate = useNavigate();
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (token) {
+			window.location.href = "/";
+		}
+	}, []);
 
-	const submitform = async (e) => {
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prevData) => ({
+			...prevData,
+			[name]: value,
+		}));
+	};
+
+	const submitForm = async (e) => {
 		e.preventDefault();
-		setError(""); // Reset error on form submit
+		setError("");
 
-		// Validate if all fields are filled
-		if (!username || !name || !email || !password) {
+		if (Object.values(formData).some((field) => field === "")) {
 			setError("All fields are required");
 			return;
 		}
 
 		try {
-			const response = await fetch(api_base_url + "/signup", {
-				mode: "cors",
-				method: "POST",
+			const response = await axios.post(`${api_base_url}/signup`, formData, {
 				headers: {
-					'Content-Type':'application/json',
+					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({
-					username,
-					name,
-					email,
-					password,
-				}),
 			});
 
-			const data = await response.json();
+			const { success, token, userId, message } = response.data;
 
-			if (data.success) {
-				localStorage.setItem("token", data.token);
-				localStorage.setItem("isLoggedIn", true);
-				localStorage.setItem("userId", data.userId);
+			if (success) {
+				localStorage.setItem("token", token);
+				localStorage.setItem("isLoggedIn", "true");
+				localStorage.setItem("userId", userId);
 				alert("Account created successfully");
-				navigate("/");
+				window.location.href = "/";
 			} else {
-				setError(data.message || "Signup failed");
+				setError(message || "Signup failed");
 			}
 		} catch (error) {
 			setError("An error occurred. Please try again later.");
+			console.error("Signup error:", error);
 		}
 	};
 
 	return (
 		<div className="container relative w-full h-screen flex items-center justify-between gap-10">
 			<div className="left pl-[100px] min-w-[35%]">
-				<img className="w-52 mt-10 mb-10" src={darklogo} alt="logo image" />
+				<img className="w-52 mt-10 mb-10" src={darklogo} alt="logo" />
 
-				<form onSubmit={submitform} method="POST" className="w-full mb-3">
-					<div className="mb-3 w-full md:w-96">
-						<input
-							onChange={(e) => setUsername(e.target.value)}
-							value={username}
-							required
-							className="bg-zinc-900 rounded-md mb-3 w-full p-3 outline-none"
-							type="text"
-							placeholder="Username"
-						/>
-					</div>
-
-					<div className="mb-3 w-full md:w-96">
-						<input
-							onChange={(e) => setName(e.target.value)}
-							value={name}
-							required
-							className="bg-zinc-900 rounded-md mb-3 w-full p-3 outline-none"
-							type="text"
-							placeholder="Name"
-						/>
-					</div>
-
-					<div className="mb-3 w-full md:w-96">
-						<input
-							onChange={(e) => setEmail(e.target.value)}
-							value={email}
-							required
-							className="bg-zinc-900 rounded-md mb-3 w-full p-3 outline-none"
-							type="email"
-							placeholder="Email"
-						/>
-					</div>
+				<form onSubmit={submitForm} className="w-full mb-3">
+					{["username", "name", "email"].map((field) => (
+						<div key={field} className="mb-3 w-full md:w-96">
+							<input
+								name={field}
+								onChange={handleChange}
+								value={formData[field]}
+								required
+								className="bg-zinc-900 rounded-md mb-3 w-full p-3 outline-none"
+								type={field === "email" ? "email" : "text"}
+								placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+							/>
+						</div>
+					))}
 
 					<div className="mb-3 w-full md:w-96 relative">
 						<input
-							onChange={(e) => setPassword(e.target.value)}
-							value={password}
+							name="password"
+							onChange={handleChange}
+							value={formData.password}
 							required
 							className="bg-zinc-900 rounded-md w-full p-3 outline-none"
 							type={showPassword ? "text" : "password"}
@@ -108,6 +98,7 @@ const Signup = () => {
 							type="button"
 							onClick={() => setShowPassword(!showPassword)}
 							className="absolute right-3 top-4 text-gray-500"
+							aria-label={showPassword ? "Hide password" : "Show password"}
 						>
 							{showPassword ? (
 								<FaEye className="w-5 h-5" />
@@ -120,11 +111,10 @@ const Signup = () => {
 					<p>
 						Already have an account?{" "}
 						<Link className="text-blue-500" to="/login">
-							login
+							Login
 						</Link>
 					</p>
 
-					{/* Display Error Message */}
 					{error && <p className="text-red-500 text-[14px] my-2">{error}</p>}
 
 					<button
@@ -138,9 +128,9 @@ const Signup = () => {
 
 			<div className="right w-[65%] mr-3 justify-end">
 				<img
-					className="h-screen object-cover w-[100%]"
+					className="h-screen object-cover w-full"
 					src={rightimg}
-					alt="Right side image"
+					alt="Right side"
 				/>
 			</div>
 		</div>
