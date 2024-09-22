@@ -9,6 +9,9 @@ const mongoose = require("mongoose");
 
 const app = express();
 
+// Set EJS as the view engine
+app.set("view engine", "ejs");
+
 require("dotenv").config();
 const connectionString = process.env.DB_CONNECTION_STRING;
 
