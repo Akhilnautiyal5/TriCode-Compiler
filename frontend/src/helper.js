@@ -8,5 +8,5 @@ export const removeClass = (elem, className) => {
 	element.classList.remove(className);
 };
 
-// export const api_base_url = "https://tri-code-compiler-backend.vercel.app";
-export const api_base_url = "http://localhost:3000";
+export const api_base_url = "https://tricode-compiler-backend.onrender.com/";
+// export const api_base_url = "http://localhost:3000";
